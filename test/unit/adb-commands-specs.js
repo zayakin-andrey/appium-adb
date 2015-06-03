@@ -39,16 +39,16 @@ describe('adb commands', () => {
       adb.shell.restore();
     };
     describe('getApiLevel', () => {
-      before(() => {
-        createStub('21');
-      });
+      let mock;
+      before(() => { mock = sinon.mock(adb); });
       it('should call shell with correct args', async () => {
+        mock.expects("shell")
+          .once().withExactArgs(['getprop', 'ro.build.version.sdk'])
+          .returns(apiLevel);
         (await adb.getApiLevel()).should.be.equal(apiLevel);
-        verifyShellArguments(['getprop', 'ro.build.version.sdk']);
+        mock.verify();
       });
-      after(async () => {
-        clearStub();
-      });
+      after(async () => { mock.restore(); });
     });
     describe('availableIMEs', () => {
       before(() => {
